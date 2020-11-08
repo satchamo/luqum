@@ -21,9 +21,9 @@ from .tree import (
 
 
 reserved = {
-  'AND': 'AND_OP',
-  'OR': 'OR_OP',
-  'NOT': 'NOT',
+  #'AND': 'AND_OP',
+  #'OR': 'OR_OP',
+  #'NOT': 'NOT',
   'TO': 'TO'}
 
 
@@ -31,9 +31,9 @@ reserved = {
 tokens = (
     ['TERM',
      'PHRASE',
-     'REGEX',
-     'APPROX',
-     'BOOST',
+#     'REGEX',
+#     'APPROX',
+#     'BOOST',
      'MINUS',
      'PLUS',
      'COLUMN',
@@ -47,15 +47,15 @@ tokens = (
 
 # precedence rules
 precedence = (
-    ('left', 'OR_OP',),
-    ('left', 'AND_OP'),
+    #('left', 'OR_OP',),
+    #('left', 'AND_OP'),
     ('nonassoc', 'MINUS',),
     ('nonassoc', 'PLUS',),
-    ('nonassoc', 'APPROX'),
-    ('nonassoc', 'BOOST'),
+    #('nonassoc', 'APPROX'),
+    #('nonassoc', 'BOOST'),
     ('nonassoc', 'LPAREN', 'RPAREN'),
     ('nonassoc', 'LBRACKET', 'TO', 'RBRACKET'),
-    ('nonassoc', 'REGEX'),
+    #('nonassoc', 'REGEX'),
     ('nonassoc', 'PHRASE'),
     ('nonassoc', 'TERM'),
 )
@@ -79,13 +79,13 @@ TIME_RE = r'''
 TERM_RE = r'''
 (?P<term>  # group term
   (?:
-   [^\s:^~(){{}}[\]/,"'+\-\\] # first char is not a space neither some char which have meanings
+   [^\s:(){{}}[\],"'+\-\\] # first char is not a space neither some char which have meanings
                               # note: escape of "-" and "]"
                               #       and doubling of "{{}}" (because we use format)
    |                          # but
    \\.                        # we can start with an escaped character
   )
-  ([^\s:^\\~(){{}}[\]]        # following chars
+  ([^\s:\\(){{}}[\]]        # following chars
    |                          # OR
    \\.                        # an escaped char
    |                          # OR
@@ -106,20 +106,20 @@ PHRASE_RE = r'''
 )'''
 # r'(?P<phrase>"(?:[^\\"]|\\"|\\[^"])*")' # this is quite complicated to handle \"
 # modifiers after term or phrase
-APPROX_RE = r'~(?P<degree>[0-9.]+)?'
-BOOST_RE = r'\^(?P<force>[0-9.]+)?'
+#APPROX_RE = r'~(?P<degree>[0-9.]+)?'
+#BOOST_RE = r'\^(?P<force>[0-9.]+)?'
 
 # regex
-REGEX_RE = r'''
-(?P<regex>  # regex
-  /         # open slash
-  (?:       # repeating
-    [^\\/]  # - a char which is not escape or end of regex
-    |       # OR
-    \\.     # an escaped char
-  )*
-  /         # closing slash
-)'''
+#REGEX_RE = r'''
+#(?P<regex>  # regex
+#  /         # open slash
+#  (?:       # repeating
+#    [^\\/]  # - a char which is not escape or end of regex
+#    |       # OR
+#    \\.     # an escaped char
+#  )*
+#  /         # closing slash
+#)'''
 
 
 def t_SEPARATOR(t):
@@ -201,32 +201,32 @@ def t_PHRASE(t):
     return t
 
 
-@lex.TOKEN(REGEX_RE)
-def t_REGEX(t):
-    orig_value = t.value
-    m = re.match(REGEX_RE, t.value, re.VERBOSE)
-    value = m.group("regex")
-    t.value = Regex(value)
-    token_headtail(t, orig_value)
-    return t
+#@lex.TOKEN(REGEX_RE)
+#def t_REGEX(t):
+#    orig_value = t.value
+#    m = re.match(REGEX_RE, t.value, re.VERBOSE)
+#    value = m.group("regex")
+#    t.value = Regex(value)
+#    token_headtail(t, orig_value)
+#    return t
 
 
-@lex.TOKEN(APPROX_RE)
-def t_APPROX(t):
-    orig_value = t.value
-    m = re.match(APPROX_RE, t.value)
-    t.value = TokenValue(m.group("degree"))
-    token_headtail(t, orig_value)
-    return t
+#@lex.TOKEN(APPROX_RE)
+#def t_APPROX(t):
+#    orig_value = t.value
+#    m = re.match(APPROX_RE, t.value)
+#    t.value = TokenValue(m.group("degree"))
+#    token_headtail(t, orig_value)
+#    return t
 
 
-@lex.TOKEN(BOOST_RE)
-def t_BOOST(t):
-    orig_value = t.value
-    m = re.match(BOOST_RE, t.value)
-    t.value = TokenValue(m.group("force"))
-    token_headtail(t, orig_value)
-    return t
+#@lex.TOKEN(BOOST_RE)
+#def t_BOOST(t):
+#    orig_value = t.value
+#    m = re.match(BOOST_RE, t.value)
+#    t.value = TokenValue(m.group("force"))
+#    token_headtail(t, orig_value)
+#    return t
 
 
 def t_error(t):
@@ -236,16 +236,16 @@ def t_error(t):
 lexer = lex.lex()
 
 
-def p_expression_or(p):
-    'expression : expression OR_OP expression'
-    p[0] = create_operation(OrOperation, p[1], p[3], op_tail=p[2].tail)
-    head_tail.binary_operation(p, op_tail=p[2].tail)
-
-
-def p_expression_and(p):
-    '''expression : expression AND_OP expression'''
-    p[0] = create_operation(AndOperation, p[1], p[3], op_tail=p[2].tail)
-    head_tail.binary_operation(p, op_tail=p[2].tail)
+#def p_expression_or(p):
+#    'expression : expression OR_OP expression'
+#    p[0] = create_operation(OrOperation, p[1], p[3], op_tail=p[2].tail)
+#    head_tail.binary_operation(p, op_tail=p[2].tail)
+#
+#
+#def p_expression_and(p):
+#    '''expression : expression AND_OP expression'''
+#    p[0] = create_operation(AndOperation, p[1], p[3], op_tail=p[2].tail)
+#    head_tail.binary_operation(p, op_tail=p[2].tail)
 
 
 def p_expression_implicit(p):
@@ -266,10 +266,10 @@ def p_expression_minus(p):
     head_tail.unary(p)
 
 
-def p_expression_not(p):
-    '''unary_expression : NOT unary_expression'''
-    p[0] = Not(p[2])
-    head_tail.unary(p)
+#def p_expression_not(p):
+#    '''unary_expression : NOT unary_expression'''
+#    p[0] = Not(p[2])
+#    head_tail.unary(p)
 
 
 def p_expression_unary(p):
@@ -305,16 +305,16 @@ def p_quoting(p):
     p[0] = p[1]
 
 
-def p_proximity(p):
-    '''unary_expression : PHRASE APPROX'''
-    p[0] = Proximity(p[1], p[2].value)
-    head_tail.post_unary(p)
+#def p_proximity(p):
+#    '''unary_expression : PHRASE APPROX'''
+#    p[0] = Proximity(p[1], p[2].value)
+#    head_tail.post_unary(p)
 
 
-def p_boosting(p):
-    '''expression : expression BOOST'''
-    p[0] = Boost(p[1], p[2].value)
-    head_tail.post_unary(p)
+#def p_boosting(p):
+#    '''expression : expression BOOST'''
+#    p[0] = Boost(p[1], p[2].value)
+#    head_tail.post_unary(p)
 
 
 def p_terms(p):
@@ -322,15 +322,15 @@ def p_terms(p):
     p[0] = p[1]
 
 
-def p_fuzzy(p):
-    '''unary_expression : TERM APPROX'''
-    p[0] = Fuzzy(p[1], p[2].value)
-    head_tail.post_unary(p)
+#def p_fuzzy(p):
+#    '''unary_expression : TERM APPROX'''
+#    p[0] = Fuzzy(p[1], p[2].value)
+#    head_tail.post_unary(p)
 
 
-def p_regex(p):
-    '''unary_expression : REGEX'''
-    p[0] = p[1]
+#def p_regex(p):
+#    '''unary_expression : REGEX'''
+#    p[0] = p[1]
 
 
 # handling a special case, TO is reserved only in range
