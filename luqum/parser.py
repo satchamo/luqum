@@ -134,7 +134,7 @@ def t_SEPARATOR(t):
 def t_TERM(t):
     # note: it also handles NOT, OR, AND, TO
     # check if it is not a reserved term (an operation)
-    t.type = reserved.get(t.value, 'TERM')
+    t.type = reserved.get(t.value.upper(), 'TERM')
     orig_value = t.value
     # it's not, make it a Word
     if t.type == 'TERM':
